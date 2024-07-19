@@ -57,13 +57,13 @@ Navigate to the pyclient Directory `cd pyclient` and run the Client  `python3 cl
 
 Once the client is running, you can use the following commands in the interactive shell:
     
-* pwd: Print the current directory.
-* mkdir <directory_name>: Create a new directory.
-* write <file_name> <data>: Write data to a file.
-* read <file_name>: Read data from a file.
-* rm <file_name>: Delete file.
-* tree: Display the directory tree.
-* exit: Exit the shell.
+* `pwd`: Print the current directory.
+* `mkdir`: <directory_name>: Create a new directory.
+* `write`: <file_name> <data>: Write data to a file.
+* `read`: <file_name>: Read data from a file.
+* `rm`: <file_name>: Delete file.
+* `tree`: Display the directory tree.
+* `exit`: Exit the shell.
 
 ### Warning
 I was too lazy to fix the absolute paths, so for every command that you execute, make sure that you are in the correct folder. For example,
