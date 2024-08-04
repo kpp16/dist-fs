@@ -5,10 +5,15 @@ import exceptions.InvalidFileTypeException;
 import exceptions.LocationDoesNotExistException;
 import interfaces.FileType;
 
+import java.io.*;
+import java.net.Socket;
 import java.util.*;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 import static components.Block.BLOCK_SIZE;
 
@@ -29,6 +34,19 @@ public class FileSystem {
     private final Lock inodeStoreLock = new ReentrantLock();
     private final Lock inodeNameStoreLock = new ReentrantLock();
     private final Lock curDirLock = new ReentrantLock();
+
+    private static final List<String> SERVERS;
+
+    private String server1;
+    private String server2;
+
+    static {
+        Dotenv dotenv = Dotenv.load();
+        String hosts = dotenv.get("FILE_HOSTS");
+        SERVERS = Arrays.stream(hosts.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+    }
 
     public FileSystem(String userName, String group) {
         this.userName = userName;
@@ -52,6 +70,92 @@ public class FileSystem {
         this.inodeStore.put(rootNode.getInodeNumber(), rootNode);
         this.inodeNameStore.put("/", rootNode);
         this.curDir = ThreadLocal.withInitial(() -> rootNode);
+        this.selectServers();
+    }
+
+    private void selectServers() {
+        Random random = new Random();
+        int index1 = random.nextInt(SERVERS.size());
+        int index2;
+        do {
+            index2 = random.nextInt(SERVERS.size());
+        } while (index1 == index2);
+
+        server1 = SERVERS.get(index1);
+        server2 = SERVERS.get(index2);
+    }
+
+    private byte[] serializeMap(Object map) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream out = new ObjectOutputStream(bos)) {
+            out.writeObject(map);
+            return bos.toByteArray();
+        }
+    }
+
+    public void writeToServer() throws IOException {
+        // Serialize the maps
+        byte[] blockStoreBytes = serializeMap(blockStore);
+        byte[] inodeStoreBytes = serializeMap(inodeStore);
+        byte[] inodeNameStoreBytes = serializeMap(inodeNameStore);
+
+        System.out.println(server1 + ", " + server2);
+
+        // Store data on server1
+        sendDataToServer(server1, blockStoreBytes, inodeStoreBytes, inodeNameStoreBytes);
+
+        // Store data on server2
+        sendDataToServer(server2, blockStoreBytes, inodeStoreBytes, inodeNameStoreBytes);
+    }
+
+    private void sendDataToServer(String server, byte[] blockStoreBytes, byte[] inodeStoreBytes, byte[] inodeNameStoreBytes) throws IOException {
+        // Parse the server address and port
+        String[] serverParts = server.split(":");
+        String serverAddress = serverParts[0];
+        int port = Integer.parseInt(serverParts[1]);
+
+        System.out.println("Storing data....");
+
+        // Open a socket connection to the server
+        try (Socket socket = new Socket(serverAddress, port);
+             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+             DataInputStream dis = new DataInputStream(socket.getInputStream())) {
+
+            // Send the "store" command
+            out.writeBytes("store");
+            out.writeBytes(String.format("%20s", (Object) "blockStoreBytes".getBytes()));
+            out.writeBytes(String.format("%10d", blockStoreBytes.length));
+            out.write(blockStoreBytes);
+
+            byte[] responseBytes = new byte[7]; // "SUCCESS" or "ERROR"
+            dis.readFully(responseBytes);
+            String response = new String(responseBytes).trim();
+            System.out.println(response);
+
+            out.writeBytes("store");
+            out.writeBytes(String.format("%20s", (Object) "inodeStoreBytes".getBytes()));
+            out.writeBytes(String.format("%10d", inodeStoreBytes.length));
+            out.write(inodeStoreBytes);
+
+            responseBytes = new byte[7]; // "SUCCESS" or "ERROR"
+            dis.readFully(responseBytes);
+            response = new String(responseBytes).trim();
+            System.out.println(response);
+
+            out.writeBytes("store");
+            out.writeBytes(String.format("%20s", (Object) "inodeNameStoreBytes".getBytes()));
+            out.writeBytes(String.format("%10d", inodeNameStoreBytes.length));
+            out.write(inodeNameStoreBytes);
+
+            responseBytes = new byte[7]; // "SUCCESS" or "ERROR"
+            dis.readFully(responseBytes);
+            response = new String(responseBytes).trim();
+            System.out.println(response);
+
+            // Optionally, handle responses from the server here
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void changeDir(String newDirPath) throws LocationDoesNotExistException, InvalidFileTypeException {

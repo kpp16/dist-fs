@@ -2,11 +2,14 @@ package components;
 
 import interfaces.FileType;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Inode {
+public class Inode implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String owner;
     private String group;
     private String address;

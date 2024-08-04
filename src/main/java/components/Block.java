@@ -2,9 +2,12 @@ package components;
 
 import interfaces.FileType;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
 
-public class Block {
+public class Block implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static int BLOCK_SIZE = 1000;
 
     private final FileType blockFileType;
