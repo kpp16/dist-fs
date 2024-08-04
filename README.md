@@ -1,6 +1,6 @@
 # dist-fs
 
-dist-fs is a Unix-style distributed filesystem written in Java, which uses Gradle for build automation. It also includes a Python client program for interacting with the filesystem. The system supports the following commands: pwd, mkdir, write, read, rm, and tree.
+dist-fs is a Unix-style distributed filesystem written in Java, which uses Gradle for build automation. It also includes a Python client program for interacting with the filesystem. The system supports the following commands: cd, pwd, mkdir, write, read, rm, and tree.
 
 
 ## Prerequisites
@@ -64,6 +64,7 @@ Once the client is running, you can use the following commands in the interactiv
 * `rm`: <file_name>: Delete file.
 * `tree`: Display the directory tree.
 * `exit`: Exit the shell.
+* `cd <dir>` Change current directory.
 
 ### Warning
 I was too lazy to fix the absolute paths, so for every command that you execute, make sure that you are in the correct folder. For example,
