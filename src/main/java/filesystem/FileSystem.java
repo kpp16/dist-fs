@@ -100,7 +100,6 @@ public class FileSystem {
         byte[] inodeNameStoreBytes = serializeMap(inodeNameStore);
 
         System.out.println(server1 + ", " + server2);
-
         // Store data on server1
         sendDataToServer(server1, blockStoreBytes, inodeStoreBytes, inodeNameStoreBytes);
 

@@ -12,4 +12,13 @@ repositories {
 
 dependencies {
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'org.apache.ratis:ratis-client:2.4.0'
+    implementation 'org.apache.ratis:ratis-server:2.4.0'
+    implementation 'org.apache.ratis:ratis-netty:2.4.0'
+    implementation 'org.apache.ratis:ratis-grpc:2.4.0'
+    implementation 'org.apache.ratis:ratis-metrics:2.4.0'
+    implementation 'org.apache.ratis:ratis-common:2.4.0'
+    implementation 'org.slf4j:slf4j-api:2.0.0'
+    implementation 'ch.qos.logback:logback-classic:1.4.0'
+
 }

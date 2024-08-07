@@ -90,12 +90,6 @@ public class FileSystemServer {
         }
     }
 
-    public void writeToServer() throws IOException {
-        logger.log(Level.INFO, "Writing to server");
-        this.fileSystem.writeToServer();
-        logger.log(Level.INFO, "Written to server");
-    }
-
     private String processCommand(String command) throws LocationDoesNotExistException, InvalidFileTypeException {
         String[] parts = command.split(" ");
         String cmd = parts[0];
@@ -138,14 +132,6 @@ public class FileSystemServer {
 
     public static void main(String[] args) {
         FileSystemServer server = new FileSystemServer("user", "group");
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                server.writeToServer();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }, 0, 2, TimeUnit.MINUTES);
         server.start();
     }
 }
