@@ -13,30 +13,22 @@ To get started with dist-fs, you need to have the following installed on your sy
 
 ## Project setup
 
-Clone the Repository
+### Clone the Repository
 ```sh
 git clone git@github.com:kpp16/dist-fs.git
 cd dist-fs
 ```
 
-Create a .env File
+### RAFT setup
 
-Create a .env file in the project root with the following variable. Replace the placeholder values with the actual addresses and ports of your worker servers:
-
-```
-BLOCK_HOSTS=host_name:port,hostname2:port,hostname3:port
-```
-
-### Run the Worker Program
-
-Compile and run the worker program on each of your worker servers. The worker program is located in `worker/Client.java`
+This project uses RAFT consensus algorithm to ensure a consistent state across multiple servers. To set up the RAFT servers, run `RaftWorkerServer` in your respective servers (Docker coming soon!).
 
 ```sh
-javac worker/Client.java
-java worker.Client <port>
+javac worker/RaftWorkerServer.java
+java worker.RaftWorkerServer <current-address> <peer-addresses> <storage-dir>
 ```
 
-Replace <port> with the actual port number you want the worker to listen on.
+And note down the peers in `FileBlock.java` (setting peers up in .env also coming soon!)
 
 ### Build the Project
 
@@ -52,7 +44,7 @@ The client program is located in `pyclient/client.py`. The client acts as an int
 
 ## Usage
 
-Navigate to the pyclient Directory `cd pyclient` and run the Client  `python3 client.py`
+Navigate to the `pyclient` Directory `cd pyclient` and run the Client  `python3 client.py`
 
 
 Once the client is running, you can use the following commands in the interactive shell:
